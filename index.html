@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loma del Bosque — Nueva Administración</title>
+<style>
+:root{
+  --green-900:#16302A;
+  --green-800:#1E3A32;
+  --green-700:#274A40;
+  --green-600:#2F5A4C;
+  --cream:#FBF8F1;
+  --cream-2:#F3ECDD;
+  --sand:#E7DCC5;
+  --gold:#C4A15E;
+  --gold-soft:#D8BE8B;
+  --terra:#B0563C;
+  --ink:#25211B;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#0d1a16;
+  font-family:var(--sans);
+  color:var(--ink);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- Deck / stage ---------- */
+#deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;
+  display:flex;
+  opacity:0;visibility:hidden;
+  transition:opacity .55s ease;
+  background:var(--cream);
+}
+.slide.active{opacity:1;visibility:visible;z-index:2}
+.pad{padding:clamp(2.2rem,5.5vw,6rem)}
+
+/* eyebrow / headings */
+.eyebrow{
+  font-family:var(--sans);
+  text-transform:uppercase;
+  letter-spacing:.28em;
+  font-size:clamp(.62rem,1.05vw,.82rem);
+  font-weight:600;
+  color:var(--gold);
+  margin-bottom:1.1rem;
+}
+.eyebrow.on-dark{color:var(--gold-soft)}
+h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.08;color:var(--green-800)}
+h1{font-size:clamp(2.6rem,7vw,5.6rem);letter-spacing:.01em}
+h2{font-size:clamp(1.9rem,4.4vw,3.4rem)}
+h3{font-size:clamp(1.15rem,1.9vw,1.5rem)}
+.on-dark h2,.on-dark h3,h2.on-dark,h3.on-dark{color:var(--cream)}
+p{line-height:1.62;font-size:clamp(.98rem,1.35vw,1.22rem);color:#413b31}
+p.lead{font-size:clamp(1.05rem,1.7vw,1.42rem);color:#37312a}
+.on-dark p{color:rgba(255,255,255,.9)}
+.rule{width:64px;height:2px;background:var(--gold);margin:1.4rem 0;border:0}
+.rule.center{margin-left:auto;margin-right:auto}
+
+/* ---------- leaf mark ---------- */
+.leaf{display:inline-block;vertical-align:middle}
+.leaf svg{display:block}
+
+/* ---------- split layout ---------- */
+.split{width:100%;display:grid;grid-template-columns:1fr 1fr}
+.split.imgLeft{grid-template-columns:1fr 1fr}
+.panel-txt{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(2rem,5vw,5.5rem);
+  background:var(--cream);
+}
+.panel-txt.tinted{background:var(--cream-2)}
+.panel-img{position:relative;overflow:hidden;background:var(--green-800)}
+.panel-img .ph{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center;
+  transform:scale(1.02);
+}
+.panel-img::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(22,48,42,.28),rgba(22,48,42,0) 30%);}
+
+/* ---------- full-bleed image slides ---------- */
+.bleed{width:100%}
+.bleed .bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.bleed .scrim{position:absolute;inset:0}
+.bleed .content{position:relative;z-index:2;display:flex;width:100%}
+
+/* ---------- cover ---------- */
+#cover .scrim{background:
+  linear-gradient(180deg,rgba(16,32,26,.55) 0%,rgba(16,32,26,.25) 40%,rgba(16,32,26,.78) 100%);}
+.cover-inner{
+  width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;color:#fff;padding:clamp(2rem,6vw,6rem);
+}
+.cover-inner .kicker{letter-spacing:.42em;text-transform:uppercase;font-size:clamp(.66rem,1.3vw,.95rem);
+  font-weight:600;color:var(--gold-soft);margin-bottom:1.4rem}
+.cover-inner h1{color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.35)}
+.cover-inner .sub{
+  margin-top:1.6rem;font-family:var(--serif);font-style:italic;
+  font-size:clamp(1.1rem,2.2vw,1.7rem);color:#fff;opacity:.95}
+.cover-inner .addr{
+  margin-top:2.4rem;font-size:clamp(.72rem,1.1vw,.9rem);letter-spacing:.22em;
+  text-transform:uppercase;color:rgba(255,255,255,.72)}
+.cover-leaf{margin:1.8rem 0 .2rem}
+
+/* ---------- value / service cards ---------- */
+.grid{display:grid;gap:clamp(1rem,1.8vw,1.6rem);width:100%}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.card{
+  background:var(--cream);border:1px solid rgba(37,33,27,.10);
+  border-radius:14px;padding:clamp(1.3rem,2.1vw,2rem);
+  display:flex;flex-direction:column;gap:.6rem;
+  box-shadow:0 10px 30px rgba(22,48,42,.05);
+}
+.card .num{font-family:var(--serif);font-size:1.35rem;color:var(--gold);line-height:1}
+.card .ic{width:38px;height:38px;color:var(--green-600)}
+.card h3{color:var(--green-800)}
+.card p{font-size:clamp(.86rem,1.15vw,1.02rem);line-height:1.5}
+
+/* checklist */
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:.85rem 2.2rem;margin:.4rem 0 1.4rem}
+.check{display:flex;align-items:center;gap:.7rem;font-size:clamp(.95rem,1.3vw,1.15rem);color:#3a342c}
+.check .tick{flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+  background:rgba(196,161,94,.16);color:var(--gold);display:grid;place-items:center}
+.check .tick svg{width:14px;height:14px}
+.on-dark .check{color:rgba(255,255,255,.92)}
+.on-dark .check .tick{background:rgba(255,255,255,.14);color:var(--gold-soft)}
+
+/* pill tags */
+.tags{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.6rem}
+.tag{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;
+  color:var(--green-700);background:rgba(47,90,76,.10);
+  padding:.5rem .9rem;border-radius:999px}
+.on-dark .tag{color:var(--cream);background:rgba(255,255,255,.14)}
+
+/* big quote */
+.quoteWrap{align-items:center;justify-content:center;text-align:center}
+.quoteWrap .qbox{max-width:min(1000px,88%);margin:0 auto}
+.bigquote{font-family:var(--serif);font-style:italic;color:#fff;
+  font-size:clamp(1.5rem,3.4vw,3rem);line-height:1.28;text-shadow:0 2px 24px rgba(0,0,0,.32)}
+.qmark{font-family:var(--serif);font-size:clamp(3rem,7vw,6rem);color:var(--gold-soft);
+  line-height:.5;display:block;margin-bottom:.4rem;opacity:.8}
+.attrib{margin-top:1.8rem;letter-spacing:.2em;text-transform:uppercase;
+  font-size:clamp(.7rem,1.1vw,.9rem);color:var(--gold-soft);font-weight:600}
+
+/* contact list */
+.contact{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem 2.6rem;margin-top:.6rem}
+.field{border-bottom:1px solid rgba(37,33,27,.14);padding-bottom:.8rem}
+.field .k{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.field .v{font-family:var(--serif);font-size:clamp(1.05rem,1.6vw,1.35rem);color:var(--green-800);margin-top:.35rem}
+.field .v.ph{color:#9a9384;font-style:italic;font-family:var(--sans);font-size:.95rem}
+
+/* photo placeholder (Nora) */
+.photoPH{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1rem;
+  background:
+    radial-gradient(120% 90% at 50% 25%,rgba(255,255,255,.10),transparent 60%),
+    linear-gradient(160deg,var(--green-700),var(--green-900));
+  color:rgba(255,255,255,.62)}
+.photoPH .avatar{width:clamp(110px,16vw,190px);height:clamp(110px,16vw,190px);
+  border-radius:50%;border:2px dashed rgba(216,190,139,.6);display:grid;place-items:center}
+.photoPH .avatar svg{width:52%;height:52%;color:rgba(216,190,139,.75)}
+.photoPH .note{font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;text-align:center;
+  color:rgba(216,190,139,.85)}
+
+/* corner brand + counter + progress */
+.brand{position:fixed;left:clamp(1.1rem,2.5vw,2.2rem);top:clamp(1rem,2.4vw,2rem);
+  z-index:20;display:flex;align-items:center;gap:.55rem;pointer-events:none;
+  opacity:0;transition:opacity .5s}
+.brand.show{opacity:1}
+.brand .bt{font-family:var(--serif);font-size:.95rem;color:var(--green-800)}
+.brand.inv .bt{color:#fff}
+.brand.inv .leaf svg *{stroke:#fff}
+.counter{position:fixed;right:clamp(1.1rem,2.5vw,2.2rem);bottom:clamp(1rem,2.4vw,1.8rem);
+  z-index:20;font-size:.78rem;letter-spacing:.15em;color:var(--green-700);
+  font-variant-numeric:tabular-nums}
+.counter.inv{color:rgba(255,255,255,.85)}
+.progress{position:fixed;left:0;bottom:0;height:3px;z-index:25;
+  background:linear-gradient(90deg,var(--gold),var(--gold-soft));width:0;transition:width .45s ease}
+
+/* nav arrows */
+.nav{position:fixed;bottom:clamp(1rem,2.4vw,1.8rem);left:clamp(1.1rem,2.5vw,2.2rem);
+  z-index:20;display:flex;gap:.5rem}
+.nav button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(37,33,27,.2);
+  background:rgba(255,255,255,.6);color:var(--green-800);cursor:pointer;
+  display:grid;place-items:center;transition:.2s;backdrop-filter:blur(4px)}
+.nav button:hover{background:#fff;transform:translateY(-1px)}
+.nav.inv button{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff}
+.nav.inv button:hover{background:rgba(255,255,255,.26)}
+.nav svg{width:16px;height:16px}
+
+.hint{position:fixed;right:clamp(1.1rem,2.5vw,2.2rem);top:clamp(1rem,2.4vw,2rem);
+  z-index:20;font-size:.72rem;letter-spacing:.1em;color:var(--green-700);opacity:.75;
+  transition:opacity .6s}
+.hint.inv{color:rgba(255,255,255,.8)}
+
+/* small meta above headings on split */
+.overline{font-size:clamp(.78rem,1.1vw,.95rem);color:var(--terra);font-weight:600;
+  letter-spacing:.04em;margin-top:.6rem}
+
+/* responsive */
+@media screen and (max-width:820px){
+  .split,.g4,.g3,.g2,.checks,.contact{grid-template-columns:1fr}
+  .panel-img{min-height:34vh}
+  .split{grid-template-rows:auto 1fr}
+  .split .panel-img{order:-1}
+}
+
+/* ---------- print / PDF export ---------- */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  body{overflow:visible;background:#fff}
+  .brand,.counter,.progress,.nav,.hint{display:none!important}
+  #deck{position:static}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;
+    width:1280px;height:720px;page-break-after:always;break-after:page;overflow:hidden}
+  .panel-img .ph,.bleed .bg{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- 1 · COVER -->
+  <section class="slide bleed active" id="cover" data-mode="dark">
+    <div class="bg" style="background-image:url('assets/cover-palms.jpg');background-position:center 40%"></div>
+    <div class="scrim"></div>
+    <div class="content cover-inner">
+      <div class="kicker">Conjunto Residencial</div>
+      <h1>Loma del Bosque</h1>
+      <div class="cover-leaf leaf" data-leaf="light" style="--lf:64px"></div>
+      <div class="sub">Nueva Administración</div>
+      <div class="addr">Reunión con propietarios · Cra 27 No. 28 Sur 51 · Envigado</div>
+    </div>
+  </section>
+
+  <!-- 2 · BIENVENIDA -->
+  <section class="slide split" data-mode="light">
+    <div class="panel-txt">
+      <div class="eyebrow">Bienvenida</div>
+      <h2>Gracias por acompañarnos<br>esta noche</h2>
+      <hr class="rule">
+      <p class="lead">Más que una presentación formal, este espacio busca que podamos conocernos.</p>
+      <p style="margin-top:1rem">Esta noche quiero contarles quién soy, cómo me gusta trabajar y cuál será el compromiso que asumo con esta comunidad. Mi propósito es que, al finalizar, tengan la tranquilidad de saber quién estará al frente y cómo vamos a trabajar juntos.</p>
+    </div>
+    <div class="panel-img"><div class="ph" style="background-image:url('assets/palm-up.jpg')"></div></div>
+  </section>
+
+  <!-- 3 · QUIÉN SOY -->
+  <section class="slide split" data-mode="light">
+    <div class="panel-img">
+      <div class="photoPH">
+        <div class="avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6"/></svg>
+        </div>
+        <div class="note">Fotografía de Nora</div>
+      </div>
+    </div>
+    <div class="panel-txt tinted">
+      <div class="eyebrow">¿Quién soy?</div>
+      <h2>Nora Luz Restrepo Restrepo</h2>
+      <hr class="rule">
+      <p class="lead">Más de 25 años en procesos administrativos, financieros y de gestión organizacional.</p>
+      <p style="font-family:var(--serif);font-style:italic;color:var(--green-700);margin-top:1.1rem;font-size:clamp(1.02rem,1.5vw,1.3rem)">“Administrar una copropiedad no consiste únicamente en manejar recursos: consiste en generar confianza, escuchar a las personas y trabajar con transparencia.”</p>
+      <div class="tags">
+        <span class="tag">Organizada</span><span class="tag">Cercana</span>
+        <span class="tag">Responsable</span><span class="tag">Comprometida</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · FILOSOFÍA -->
+  <section class="slide" data-mode="light">
+    <div class="pad" style="display:flex;flex-direction:column;justify-content:center;width:100%">
+      <div class="eyebrow">Nuestra filosofía de trabajo</div>
+      <h2 style="margin-bottom:.4rem">Cuatro valores que nos guían</h2>
+      <hr class="rule">
+      <div class="grid g4" style="margin-top:1.4rem">
+        <div class="card"><div class="num">01</div><h3>Transparencia</h3><p>Cada peso de la copropiedad estará debidamente soportado. Información clara y oportuna para los propietarios.</p></div>
+        <div class="card"><div class="num">02</div><h3>Comunicación</h3><p>Una buena administración escucha. Las solicitudes se atienden con respeto y oportunidad.</p></div>
+        <div class="card"><div class="num">03</div><h3>Cumplimiento</h3><p>Las decisiones de Asamblea y Consejo se ejecutan de manera organizada y responsable.</p></div>
+        <div class="card"><div class="num">04</div><h3>Trabajo en equipo</h3><p>Consejo, comité, residentes, proveedores y administración: unidos logramos resultados.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · QUÉ PUEDEN ESPERAR -->
+  <section class="slide" data-mode="light">
+    <div class="pad" style="display:flex;flex-direction:column;justify-content:center;width:100%">
+      <div class="eyebrow">¿Qué pueden esperar de esta administración?</div>
+      <h2>Gestión clara en tres frentes</h2>
+      <hr class="rule">
+      <div class="grid g3" style="margin-top:1.4rem">
+        <div class="card">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 3h9l3 3v15H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
+          <h3>Administrativa y legal</h3>
+          <p>Cumplimiento de la Ley de Propiedad Horizontal, documentación organizada y ejecución correcta de las decisiones de Asamblea y Consejo.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+          <h3>Contable y financiera</h3>
+          <p>Finanzas claras y transparentes. Informes oportunos, seguimiento al presupuesto y manejo adecuado de ingresos y gastos.</p>
+        </div>
+        <div class="card">
+          <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 7h18v12H3z"/><path d="M3 11h18M7 15h4"/></svg></div>
+          <h3>Facturación y cartera</h3>
+          <p>Fortalecer la recuperación de cartera para aliviar la carga de quienes cumplen, buscando siempre acuerdos de pago antes de procesos jurídicos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · MANTENIMIENTO -->
+  <section class="slide split" data-mode="light">
+    <div class="panel-txt">
+      <div class="eyebrow">Nuestro compromiso con el mantenimiento</div>
+      <h2>Prevenir, no reaccionar</h2>
+      <hr class="rule">
+      <div class="checks">
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Mantenimiento preventivo</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Mantenimiento correctivo</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Infraestructura</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Zonas comunes</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Cumplimiento de contratos</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Calidad de los proveedores</div>
+      </div>
+      <p class="lead" style="color:var(--green-700);font-family:var(--serif);font-style:italic">No esperamos que aparezcan los problemas. Queremos prevenirlos.</p>
+    </div>
+    <div class="panel-img"><div class="ph" style="background-image:url('assets/court.jpg')"></div></div>
+  </section>
+
+  <!-- 7 · RELACIÓN CON LA COMUNIDAD (clave) -->
+  <section class="slide bleed" data-mode="dark">
+    <div class="bg" style="background-image:url('assets/garden.jpg');background-position:center 45%"></div>
+    <div class="scrim" style="background:linear-gradient(180deg,rgba(16,32,26,.72),rgba(16,32,26,.55) 45%,rgba(16,32,26,.82))"></div>
+    <div class="content pad quoteWrap on-dark" style="flex-direction:column;justify-content:center">
+      <div class="eyebrow on-dark">Relación con la comunidad</div>
+      <div class="qbox">
+        <span class="qmark">“</span>
+        <div class="bigquote">Las puertas de la administración estarán abiertas para escuchar, orientar y acompañar a cada propietario y residente.</div>
+      </div>
+      <div class="tags" style="justify-content:center;margin-top:2rem">
+        <span class="tag">Atención respetuosa</span>
+        <span class="tag">Respuesta oportuna</span>
+        <span class="tag">Comunicación constante</span>
+        <span class="tag">Seguimiento a solicitudes</span>
+        <span class="tag">Solución dialogada</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · PROVEEDORES -->
+  <section class="slide split" data-mode="light">
+    <div class="panel-img"><div class="ph" style="background-image:url('assets/salon.jpg')"></div></div>
+    <div class="panel-txt tinted">
+      <div class="eyebrow">Gestión de proveedores</div>
+      <h2>La mejor relación entre calidad, servicio y costo</h2>
+      <hr class="rule">
+      <div class="checks" style="grid-template-columns:1fr">
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Calidad</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Cumplimiento</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Transparencia</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Evaluación permanente</div>
+        <div class="check"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>Optimización de recursos</div>
+      </div>
+      <p>Cada proveedor será seleccionado buscando siempre el mayor beneficio para la copropiedad.</p>
+    </div>
+  </section>
+
+  <!-- 9 · PRIMEROS 90 DÍAS -->
+  <section class="slide" data-mode="light">
+    <div class="pad" style="display:flex;flex-direction:column;justify-content:center;width:100%">
+      <div class="eyebrow">Primeros 90 días</div>
+      <h2>Llegamos con un plan</h2>
+      <hr class="rule">
+      <div class="grid g3" style="margin-top:1.2rem;gap:.9rem 1.4rem">
+        <div class="check"><span class="tick">1</span>Diagnóstico administrativo</div>
+        <div class="check"><span class="tick">2</span>Revisión de contratos</div>
+        <div class="check"><span class="tick">3</span>Inventario general</div>
+        <div class="check"><span class="tick">4</span>Revisión documental</div>
+        <div class="check"><span class="tick">5</span>Evaluación financiera</div>
+        <div class="check"><span class="tick">6</span>Revisión de cartera</div>
+        <div class="check"><span class="tick">7</span>Estado de la infraestructura</div>
+        <div class="check"><span class="tick">8</span>Priorización de necesidades</div>
+        <div class="check"><span class="tick">9</span>Canales de comunicación</div>
+      </div>
+      <p style="margin-top:1.6rem;color:var(--green-700);font-family:var(--serif);font-style:italic;font-size:clamp(1.02rem,1.5vw,1.3rem)">Un recorrido detallado del conjunto para conocer su realidad y priorizar con criterio.</p>
+    </div>
+  </section>
+
+  <!-- 10 · CANALES DE COMUNICACIÓN -->
+  <section class="slide split" data-mode="light">
+    <div class="panel-txt">
+      <div class="eyebrow">Canales de comunicación</div>
+      <h2>Siempre a su alcance</h2>
+      <hr class="rule">
+      <div class="contact">
+        <div class="field"><div class="k">Administradora</div><div class="v">Nora Luz Restrepo Restrepo</div></div>
+        <div class="field"><div class="k">Celular</div><div class="v ph">[ Número de contacto ]</div></div>
+        <div class="field"><div class="k">Correo</div><div class="v ph">[ correo@ejemplo.com ]</div></div>
+        <div class="field"><div class="k">Horario de atención</div><div class="v ph">[ Días y horas ]</div></div>
+        <div class="field"><div class="k">Oficina de administración</div><div class="v ph">[ Ubicación ]</div></div>
+        <div class="field"><div class="k">Tiempo de respuesta</div><div class="v ph">[ p. ej. 48 horas hábiles ]</div></div>
+      </div>
+    </div>
+    <div class="panel-img"><div class="ph" style="background-image:url('assets/sign.jpg')"></div></div>
+  </section>
+
+  <!-- 11 · NUESTRO COMPROMISO (cierre) -->
+  <section class="slide bleed" data-mode="dark">
+    <div class="bg" style="background-image:url('assets/casita.jpg');background-position:center 55%"></div>
+    <div class="scrim" style="background:linear-gradient(180deg,rgba(16,32,26,.55),rgba(16,32,26,.35) 40%,rgba(16,32,26,.88))"></div>
+    <div class="content pad quoteWrap on-dark" style="flex-direction:column;justify-content:flex-end;padding-bottom:clamp(3rem,7vw,6rem)">
+      <div class="eyebrow on-dark">Nuestro compromiso</div>
+      <div class="qbox">
+        <div class="bigquote" style="font-size:clamp(1.35rem,2.9vw,2.5rem)">Administrar una copropiedad significa cuidar el patrimonio de cada uno de ustedes.</div>
+        <p class="on-dark" style="margin-top:1.4rem;max-width:820px;margin-left:auto;margin-right:auto">No prometo resolver todos los problemas de inmediato, pero sí les garantizo que siempre encontrarán una administración que <strong>escucha, responde y actúa con honestidad</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · ESPACIO DE PREGUNTAS -->
+  <section class="slide bleed" data-mode="dark">
+    <div class="bg" style="background-image:url('assets/pool.jpg');background-position:center"></div>
+    <div class="scrim" style="background:linear-gradient(180deg,rgba(16,32,26,.78),rgba(16,32,26,.6) 50%,rgba(16,32,26,.85))"></div>
+    <div class="content pad quoteWrap on-dark" style="flex-direction:column;justify-content:center">
+      <div class="cover-leaf leaf" data-leaf="light" style="--lf:52px"></div>
+      <h2 class="on-dark" style="margin-top:.4rem">Ahora me gustaría escucharlos</h2>
+      <div class="qbox" style="margin-top:1rem">
+        <p class="on-dark" style="font-size:clamp(1.05rem,1.7vw,1.4rem)">Este espacio también es para conocer sus expectativas, inquietudes y sugerencias. Cada comentario será valioso para construir, junto con ustedes, una administración cercana, eficiente y comprometida con el bienestar de nuestro conjunto.</p>
+      </div>
+      <div class="attrib" style="margin-top:2rem">Gracias · Los invitamos a un café para seguir conversando</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- chrome -->
+<div class="brand" id="brand"><span class="leaf" data-leaf="dark" style="--lf:26px"></span><span class="bt">Loma del Bosque</span></div>
+<div class="hint" id="hint">← → para navegar · F pantalla completa</div>
+<div class="counter" id="counter">01 / 12</div>
+<div class="nav" id="nav">
+  <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<div class="progress" id="progress"></div>
+
+<script>
+// leaf logo (recreated from the entrance sign)
+const leafDark = 'stroke:#2F5A4C';
+function leafSVG(color){
+  return `<svg width="var(--lf)" height="var(--lf)" viewBox="0 0 40 40" fill="none">
+    <path d="M32 8C18 9 9 18 9 30c0 .8.06 1.5.16 2.2C21 32 31 23 32 8Z"
+      fill="none" stroke="${color}" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M9.2 32.2C15 26 24 17 31.8 8.4" stroke="${color}" stroke-width="1.7" stroke-linecap="round"/>
+  </svg>`;
+}
+document.querySelectorAll('[data-leaf]').forEach(el=>{
+  const c = el.dataset.leaf==='light' ? '#D8BE8B' : '#2F5A4C';
+  el.innerHTML = leafSVG(c);
+});
+
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length;
+let i=0;
+const brand=document.getElementById('brand');
+const counter=document.getElementById('counter');
+const nav=document.getElementById('nav');
+const hint=document.getElementById('hint');
+const progress=document.getElementById('progress');
+const pad2=n=>String(n).padStart(2,'0');
+
+function show(n){
+  i=Math.max(0,Math.min(total-1,n));
+  slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+  // update URL hash (guarded: file:// can throw in some browsers)
+  try{ if(history.replaceState) history.replaceState(null,'','#'+(i+1)); }catch(e){}
+  const dark = slides[i].dataset.mode==='dark';
+  brand.classList.toggle('inv',dark);
+  counter.classList.toggle('inv',dark);
+  nav.classList.toggle('inv',dark);
+  hint.classList.toggle('inv',dark);
+  counter.textContent=`${pad2(i+1)} / ${pad2(total)}`;
+  progress.style.width=((i)/(total-1)*100)+'%';
+  brand.classList.toggle('show', i>0);
+}
+function next(){show(i+1)}
+function prev(){show(i-1)}
+
+function onKey(e){
+  var k=e.key;
+  if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){e.preventDefault();next();}
+  else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){e.preventDefault();prev();}
+  else if(k==='Home'){show(0);}
+  else if(k==='End'){show(total-1);}
+  else if(k==='f'||k==='F'){
+    if(document.fullscreenElement){ if(document.exitFullscreen)document.exitFullscreen(); }
+    else { var el=document.documentElement; (el.requestFullscreen||el.webkitRequestFullscreen||function(){}).call(el); }
+  }
+}
+// single keydown listener (attaching to both window and document double-fires and skips slides)
+window.addEventListener('keydown',onKey);
+
+// on-screen arrows
+var nextBtn=document.getElementById('next'), prevBtn=document.getElementById('prev');
+nextBtn.addEventListener('click',function(e){e.stopPropagation();next();});
+prevBtn.addEventListener('click',function(e){e.stopPropagation();prev();});
+
+// click / tap anywhere to advance (works even without keyboard focus);
+// click on the left ~22% goes back
+document.getElementById('deck').addEventListener('click',function(e){
+  if(e.clientX < window.innerWidth*0.22) prev(); else next();
+});
+
+// hide hint after a bit
+setTimeout(function(){hint.style.opacity='0';},6000);
+
+// grab focus so arrow keys work immediately after opening
+try{ window.focus(); }catch(e){}
+
+// open at #N if present (also lets you resume where you left off)
+var startAt=parseInt((location.hash||'').replace('#',''),10);
+show(isNaN(startAt)?0:startAt-1);
+</script>
+</body>
+</html>

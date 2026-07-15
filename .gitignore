@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editores
+.vscode/
+.idea/
+
+# Vercel
+.vercel/
+
+# Dependencias (por si acaso)
+node_modules/
+
+# Imágenes fuente sin usar (no versionar)
+/PHOTO-*.jpg
