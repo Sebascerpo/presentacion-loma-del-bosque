@@ -16,3 +16,6 @@ node_modules/
 
 # Imágenes fuente sin usar (no versionar)
 /PHOTO-*.jpg
+
+# Documentos de trabajo ajenos a la presentación (el repo es público)
+/12+Rules+to+Learn+to+Code*.pdf
