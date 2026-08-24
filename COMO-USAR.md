@@ -2,11 +2,14 @@
 
 ## Archivos
 
+- **`consejo-24-agosto.html`** → **Informe de gestión de agosto de 2026**, para el Consejo
+  de Administración del 24 de agosto (17 diapositivas). Es la presentación más reciente.
 - **`consejo-28-julio.html`** → presentación para el **Consejo de Administración del 28 de julio de 2026**
   (9 diapositivas: portada + los 8 puntos del orden del día).
 - **`index.html`** → presentación de **bienvenida de la nueva administración** a los propietarios (12 diapositivas).
-- **`Loma-del-Bosque-respaldo.pdf`** → respaldo de la presentación de bienvenida, por si el proyector no acepta el navegador.
-- **`assets/`** → las fotos usadas por ambas presentaciones. **No borrar ni renombrar.**
+- **`Informe-agosto-2026-respaldo.pdf`** y **`Loma-del-Bosque-respaldo.pdf`** → respaldos en PDF,
+  por si el proyector no acepta el navegador.
+- **`assets/`** → las fotos usadas por las presentaciones. **No borrar ni renombrar.**
 
 ## Cómo presentar
 
@@ -15,7 +18,7 @@
 3. Avanza con la **flecha derecha** (o barra espaciadora); retrocede con la **flecha izquierda**.
 4. También hay flechas en la esquina inferior izquierda, y se puede hacer clic en la diapositiva.
 5. Para saltar a una diapositiva, agrega `#número` al final de la dirección
-   (ej.: `consejo-28-julio.html#7` abre directamente en los informes contables).
+   (ej.: `consejo-24-agosto.html#5` abre directamente en el punto del seguro).
 
 > No necesita internet. Funciona en cualquier computador con navegador (Chrome, Edge, Safari, Firefox).
 
@@ -24,37 +27,47 @@
 Abre la presentación, presiona **Ctrl/Cmd + P** y elige "Guardar como PDF".
 Cada diapositiva sale en una página horizontal.
 
-## Consejo del 28 de julio — las 9 diapositivas
+## Informe de agosto — las 17 diapositivas
 
-1. Portada y orden del día
-2. **Punto 1** · Cotizaciones de fumigación 2026 → _decisión_
-3. **Punto 2** · Lavado del acceso principal de las casas → _aprobación_
-4. **Punto 3** · Resembrado de las materas del salón social → _autorización_
-5. **Punto 4** · Cerca eléctrica y sensores perimetrales → _autorización_
-6. **Punto 5** · Seguimiento a la solicitud de la vivienda 150 → _informe_
-7. **Punto 6** · Propuesta del seguro 2026-2027 → _decisión (se recomienda HDI)_
-8. **Punto 7** · Estados financieros a junio de 2026 → _informe_
-9. **Punto 8** · Proceso ambiental, Quebrada Mina Honda → _informe_
+El informe está armado como un documento con tres capítulos. Las páginas oscuras son
+las portadillas: anuncian lo que viene y sirven para hacer una pausa al presentar.
 
-Los puntos que requieren decisión del Consejo llevan un recuadro verde
-**"Se solicita al Consejo"** al final de la diapositiva.
+| # | Diapositiva |
+|---|---|
+| 1 | **Portada** _(oscura)_ |
+| 2 | Resumen: 4 cumplidos · 5 en curso · 2 al Consejo |
+| 3 | **Estado de los once compromisos** (la tabla) |
+| 4 | **Capítulo I · Lo que requiere decisión del Consejo** _(oscura)_ |
+| 5 | Seguro de zonas comunes 2026-2027 |
+| 6 | Proyecto de fachadas |
+| 7 | **Capítulo II · Compromisos cumplidos** _(oscura)_ |
+| 8 | Fumigación: $129.000 por debajo del presupuesto |
+| 9 | Lavado de andenes y accesos |
+| 10 | Contabilidad y cartera de la casa 146 |
+| 11 | **Capítulo III · Gestiones en curso ante terceros** _(oscura)_ |
+| 12 | Expediente ambiental de ocupación de cauce |
+| 13 | Iluminación: EPM → Municipio → Enviaseo |
+| 14 | Cerca eléctrica, casa 150 y guadañadoras |
+| 15 | Presencia y comunicación |
+| 16 | Agosto en cifras |
+| 17 | **Balance y cierre**, firmado _(oscura)_ |
 
-## Bienvenida a propietarios — las 12 diapositivas
+### Cómo se leen los colores
 
-1. Portada
-2. Bienvenida
-3. ¿Quién soy?
-4. Filosofía de trabajo (4 valores)
-5. ¿Qué pueden esperar? (3 frentes)
-6. Compromiso con el mantenimiento
-7. Relación con la comunidad _(la más importante)_
-8. Gestión de proveedores
-9. Primeros 90 días
-10. Canales de comunicación
-11. Nuestro compromiso (cierre)
-12. Espacio de preguntas
+Arriba a la derecha de cada diapositiva hay un cuadrito con el estado del asunto:
 
-## Recomendación de Nora
+- **verde** → compromiso cumplido
+- **ocre** → en curso, a la espera de un tercero
+- **rojo ladrillo** → requiere una decisión del Consejo
 
-Al ingresar, entregar a cada propietario una hoja con el orden del día y una tarjeta de contacto.
-La cercanía genera más confianza que una presentación larga.
+Son los mismos colores de la tabla de la diapositiva 3, donde además los once compromisos
+están agrupados por estado y separados por una línea más marcada.
+
+## Consejo para la reunión
+
+Las diapositivas 3 (la tabla) y 4-6 (el capítulo I) son las que sostienen la reunión:
+la tabla muestra el panorama completo de un vistazo y el capítulo I deja claro qué se le
+pide al Consejo. Las demás sirven para ampliar cualquier punto si alguien pregunta.
+
+El informe no usa fotografías: la estructura y la tipografía son las que ordenan la lectura.
+Por eso el archivo no depende de la carpeta `assets/` y se puede mover o enviar solo.

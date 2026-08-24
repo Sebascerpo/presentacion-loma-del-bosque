@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loma del Bosque — Informe de gestión · Agosto de 2026</title>
+<style>
+:root{
+  --paper:#FAF8F3;
+  --paper-2:#F1ECE2;
+  --dark:#1A1714;
+  --dark-2:#242019;
+  --cream:#F4EFE5;
+  --ink:#1D1A16;
+  --ink-70:#4B443B;
+  --ink-50:#756D62;
+  --ink-30:rgba(29,26,22,.32);
+  --hair:rgba(29,26,22,.14);
+  --hair-2:rgba(29,26,22,.07);
+  --brick:#A6482E;
+  --brick-lt:#CE7B58;
+  --ok:#2E6B48;
+  --wait:#8A6512;
+  --ask:#A6482E;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#0f0d0b;font-family:var(--serif);color:var(--ink);
+  overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+
+/* ---------- hoja ---------- */
+#deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;display:flex;
+  opacity:0;visibility:hidden;transition:opacity .45s ease;background:var(--paper);
+}
+.slide.active{opacity:1;visibility:visible;z-index:2}
+.slide.dark{background:var(--dark);color:var(--cream)}
+.sheet{
+  width:100%;display:flex;flex-direction:column;
+  padding:clamp(1.5rem,3vw,2.6rem) clamp(2rem,5vw,5.2rem) clamp(2.6rem,4.4vw,4rem);
+}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+
+/* ---------- guía superior: capítulo y estado ---------- */
+.rail{
+  flex:0 0 auto;display:flex;align-items:baseline;justify-content:space-between;gap:2rem;
+  padding-bottom:.62rem;border-bottom:1px solid var(--hair);
+  font-family:var(--sans);font-size:clamp(.6rem,.78vw,.7rem);
+  letter-spacing:.17em;text-transform:uppercase;font-weight:600;color:var(--ink-50);
+}
+.rail .st{display:flex;align-items:center;gap:.5rem;white-space:nowrap}
+.rail .st::before{content:"";width:7px;height:7px;background:currentColor;flex:0 0 auto}
+.st.ok{color:var(--ok)}
+.st.wait{color:var(--wait)}
+.st.ask{color:var(--ask)}
+
+/* ---------- jerarquía ---------- */
+.kicker{
+  font-family:var(--sans);font-size:clamp(.62rem,.8vw,.72rem);font-weight:600;
+  letter-spacing:.19em;text-transform:uppercase;color:var(--ink-50);margin-bottom:.85rem;
+}
+.dark .kicker{color:rgba(244,239,229,.55)}
+h1{font-family:var(--serif);font-weight:400;line-height:1.0;
+   font-size:clamp(2.6rem,7vw,5.8rem);letter-spacing:-.016em}
+h2{font-family:var(--serif);font-weight:400;line-height:1.13;letter-spacing:-.01em;
+   font-size:clamp(1.55rem,3.1vw,2.5rem);max-width:24ch}
+h2.wide{max-width:34ch}
+h2.topic{font-size:clamp(1.5rem,2.9vw,2.3rem)}
+.dark h2{color:var(--cream)}
+h3{font-family:var(--serif);font-weight:400;font-size:clamp(1rem,1.5vw,1.24rem);line-height:1.24}
+p{font-family:var(--serif);line-height:1.6;color:var(--ink-70);
+  font-size:clamp(.88rem,1.14vw,1.02rem);max-width:60ch}
+p + p{margin-top:.7em}
+p.lead{font-size:clamp(.98rem,1.42vw,1.2rem);line-height:1.48;color:var(--ink)}
+.dark p{color:rgba(244,239,229,.78)}
+p.note{font-size:clamp(.75rem,.94vw,.86rem);color:var(--ink-50);line-height:1.5}
+strong{font-weight:600;color:var(--ink)}
+.dark strong{color:var(--cream)}
+.hr{height:1px;background:var(--hair);border:0;margin:1.1rem 0}
+.hr.s{width:48px;background:var(--ink-30);margin:.95rem 0}
+.dark .hr{background:rgba(244,239,229,.2)}
+
+.quote{font-family:var(--serif);font-style:italic;color:var(--ink);
+  font-size:clamp(.98rem,1.5vw,1.26rem);line-height:1.42;
+  border-left:1px solid var(--brick);padding-left:clamp(.85rem,1.4vw,1.2rem);max-width:52ch}
+.dark .quote{color:var(--cream);border-left-color:var(--brick-lt)}
+
+/* ---------- portada ---------- */
+.cover{justify-content:center;gap:0}
+.cover .mark{margin-bottom:clamp(1.4rem,3vw,2.4rem)}
+.cover h1{color:var(--cream)}
+.cover .sub{font-family:var(--serif);font-style:italic;color:rgba(244,239,229,.82);
+  font-size:clamp(1.1rem,2.2vw,1.75rem);margin-top:.5rem}
+.cover .meta{margin-top:clamp(2rem,4vw,3.2rem);padding-top:1.1rem;
+  border-top:1px solid rgba(244,239,229,.22);display:flex;flex-wrap:wrap;
+  gap:.45rem clamp(1.4rem,3.4vw,3rem);
+  font-family:var(--sans);font-size:clamp(.68rem,.88vw,.79rem);letter-spacing:.05em;
+  color:rgba(244,239,229,.66)}
+
+/* ---------- portadillas de capítulo ---------- */
+.chap-body{justify-content:center}
+.chap-num{font-family:var(--serif);font-size:clamp(2.4rem,5.4vw,4.4rem);line-height:.85;
+  color:var(--brick-lt);letter-spacing:.02em;margin-bottom:.7rem}
+.chap-list{list-style:none;margin-top:clamp(1.6rem,3vw,2.4rem);max-width:44rem;
+  border-top:1px solid rgba(244,239,229,.2)}
+.chap-list li{display:flex;gap:1.1rem;align-items:baseline;
+  padding:.6rem 0;border-bottom:1px solid rgba(244,239,229,.11);
+  font-family:var(--serif);font-size:clamp(.86rem,1.14vw,1.02rem);color:rgba(244,239,229,.8)}
+.chap-list li span{font-family:var(--sans);font-size:.68rem;letter-spacing:.12em;
+  color:rgba(244,239,229,.42);flex:0 0 1.6rem}
+
+/* ---------- dos columnas ---------- */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,3.4vw,3.2rem);width:100%;align-items:start}
+.cols.a{grid-template-columns:1.25fr .75fr}
+.cols > div + div{border-left:1px solid var(--hair);padding-left:clamp(1.6rem,3.4vw,3.2rem)}
+.dark .cols > div + div{border-left-color:transparent}
+.cols h3{margin-bottom:.6rem}
+
+/* ---------- listas ---------- */
+.list{display:flex;flex-direction:column;gap:.55rem;margin-top:.9rem;list-style:none}
+.list li{position:relative;padding-left:1rem;
+  font-family:var(--serif);font-size:clamp(.85rem,1.1vw,1rem);line-height:1.52;color:var(--ink-70)}
+.list li::before{content:"";position:absolute;left:0;top:.66em;width:5px;height:1px;background:var(--ink-30)}
+
+/* ---------- tabla de compromisos ---------- */
+.tbl{width:100%;border-collapse:collapse;margin-top:1rem}
+.tbl th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.14em;
+  font-size:clamp(.54rem,.68vw,.62rem);font-weight:700;color:var(--ink-50);
+  text-align:left;padding:0 .9rem .5rem 0;border-bottom:1px solid var(--ink-30)}
+.tbl th:last-child{text-align:right;padding-right:0}
+.tbl td{padding:.5rem .9rem .5rem 0;border-bottom:1px solid var(--hair-2);
+  font-size:clamp(.73rem,.95vw,.89rem);line-height:1.4;color:var(--ink-70);vertical-align:baseline}
+.tbl td:first-child{color:var(--ink);white-space:nowrap;padding-right:1.4rem}
+.tbl td:last-child{text-align:right;padding-right:0;white-space:nowrap;
+  font-family:var(--sans);font-size:clamp(.61rem,.79vw,.71rem);letter-spacing:.04em;font-weight:600}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.grp td{border-bottom:1px solid var(--ink-30)}
+.t-ok{color:var(--ok)}
+.t-wait{color:var(--wait)}
+.t-ask{color:var(--ask)}
+.legend{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;margin-top:.95rem;
+  font-family:var(--sans);font-size:clamp(.65rem,.83vw,.74rem);color:var(--ink-50)}
+.legend span{display:flex;align-items:center;gap:.5rem}
+.legend i{width:7px;height:7px;flex:0 0 auto}
+.legend i.ok{background:var(--ok)}
+.legend i.wait{background:var(--wait)}
+.legend i.ask{background:var(--ask)}
+
+/* ---------- cifras clave ---------- */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(1.1rem,2.4vw,2.3rem) clamp(1.5rem,3.2vw,3.2rem);width:100%;margin-top:1.4rem}
+.fig{border-top:1px solid var(--ink-30);padding-top:.8rem}
+.fig .v{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3.3rem);line-height:1;
+  color:var(--ink);letter-spacing:-.028em;font-variant-numeric:tabular-nums}
+.fig.hi .v{color:var(--brick)}
+.fig .k{font-family:var(--serif);font-size:clamp(.78rem,.98vw,.9rem);color:var(--ink-50);
+  margin-top:.5rem;line-height:1.42;max-width:23ch}
+.figs.g3big .fig .v{font-size:clamp(2.6rem,5.6vw,4.4rem)}
+
+/* ---------- cuenta (presupuesto / negociado / ahorro) ---------- */
+.ledger{margin-top:1.1rem;max-width:29rem}
+.ledger div{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+  padding:.52rem 0;border-bottom:1px solid var(--hair-2)}
+.ledger div:last-child{border-bottom:0;border-top:1px solid var(--ink-30);margin-top:.12rem}
+.ledger .k{font-family:var(--sans);font-size:clamp(.67rem,.86vw,.77rem);color:var(--ink-50)}
+.ledger .v{font-family:var(--serif);font-size:clamp(1rem,1.38vw,1.2rem);color:var(--ink);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger div:last-child .k{color:var(--brick);font-weight:600}
+.ledger div:last-child .v{color:var(--brick)}
+
+/* ---------- secuencia de pasos ---------- */
+.steps{display:grid;gap:clamp(.9rem,1.9vw,1.8rem);margin-top:1.3rem;list-style:none}
+.steps.s3{grid-template-columns:repeat(3,1fr)}
+.steps.s4{grid-template-columns:repeat(4,1fr)}
+.steps li{border-top:1px solid var(--ink-30);padding-top:.66rem}
+.steps .n{font-family:var(--sans);font-size:.64rem;font-weight:700;letter-spacing:.14em;
+  color:var(--brick);display:block;margin-bottom:.32rem;text-transform:uppercase}
+.steps .t{font-family:var(--serif);font-size:clamp(.93rem,1.22vw,1.08rem);color:var(--ink);
+  display:block;line-height:1.22}
+.steps .d{font-family:var(--serif);font-size:clamp(.75rem,.94vw,.85rem);color:var(--ink-50);
+  display:block;margin-top:.32rem;line-height:1.45}
+
+/* ---------- matriz de asuntos ---------- */
+.matrix{width:100%;border-collapse:collapse;margin-top:1.1rem}
+.matrix th{font-family:var(--serif);font-weight:400;text-align:left;vertical-align:bottom;
+  font-size:clamp(.98rem,1.35vw,1.18rem);color:var(--ink);line-height:1.2;
+  padding:0 1.4rem .6rem 0;border-bottom:1px solid var(--ink-30)}
+.matrix th:first-child{width:9.5rem}
+.matrix td{padding:.72rem 1.4rem .72rem 0;border-bottom:1px solid var(--hair-2);
+  font-family:var(--serif);font-size:clamp(.8rem,1.03vw,.94rem);line-height:1.46;color:var(--ink-70);
+  vertical-align:top}
+.matrix tr:last-child td{border-bottom:0}
+.matrix .rl{font-family:var(--sans);font-size:clamp(.6rem,.76vw,.68rem);font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--ink-50);white-space:nowrap}
+
+/* ---------- banda de años ---------- */
+.band{display:flex;align-items:center;gap:clamp(.8rem,1.8vw,1.5rem);margin:1.5rem 0 .3rem}
+.band .y{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.4rem);color:var(--ink-30);
+  line-height:1;flex:0 0 auto}
+.band .sp{flex:1;position:relative;text-align:center}
+.band .sp::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--hair)}
+.band .sp em{position:relative;background:var(--paper);padding:0 clamp(.7rem,1.5vw,1.2rem);
+  font-family:var(--serif);font-style:italic;color:var(--brick);font-size:clamp(.85rem,1.16vw,1.02rem)}
+
+/* ---------- solicitudes ---------- */
+.asks{display:flex;flex-direction:column;gap:clamp(1.1rem,2.2vw,1.9rem);margin-top:1.3rem;width:100%}
+.ask-item{display:grid;grid-template-columns:auto 1fr;gap:clamp(1rem,2.2vw,2rem);
+  align-items:start;border-top:1px solid var(--brick);padding-top:.9rem}
+.ask-item .no{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:.9;
+  color:var(--brick);letter-spacing:-.02em}
+.ask-item h3{margin-bottom:.4rem}
+.ask-item p{max-width:80ch}
+
+/* ---------- firma ---------- */
+.sig{margin-top:clamp(1.4rem,2.6vw,2.2rem)}
+.sig .ln{width:140px;height:1px;background:rgba(244,239,229,.3);margin-bottom:.65rem}
+.sig .nm{font-family:var(--serif);font-style:italic;color:var(--cream);
+  font-size:clamp(1.05rem,1.65vw,1.4rem)}
+.sig .rl{font-family:var(--sans);font-size:clamp(.64rem,.82vw,.73rem);
+  color:rgba(244,239,229,.55);letter-spacing:.11em;text-transform:uppercase;margin-top:.36rem}
+
+/* ---------- marca de hoja ---------- */
+.mark svg{display:block}
+
+/* ---------- cromo ---------- */
+.counter{position:fixed;right:clamp(1.4rem,3vw,2.8rem);bottom:clamp(.9rem,2vw,1.5rem);z-index:20;
+  font-family:var(--sans);font-size:.68rem;letter-spacing:.13em;color:var(--ink-50);
+  font-variant-numeric:tabular-nums}
+.counter.inv{color:rgba(244,239,229,.6)}
+.nav{position:fixed;left:clamp(1.4rem,3vw,2.8rem);bottom:clamp(.8rem,1.9vw,1.4rem);z-index:20;display:flex;gap:.4rem}
+.nav button{width:29px;height:29px;border-radius:50%;border:1px solid var(--hair);
+  background:transparent;color:var(--ink-50);cursor:pointer;display:grid;place-items:center;transition:.18s}
+.nav button:hover{border-color:var(--ink-30);color:var(--ink)}
+.nav.inv button{border-color:rgba(244,239,229,.26);color:rgba(244,239,229,.7)}
+.nav.inv button:hover{border-color:rgba(244,239,229,.6);color:var(--cream)}
+.nav svg{width:14px;height:14px}
+.hint{position:fixed;right:clamp(1.4rem,3vw,2.8rem);top:clamp(.7rem,1.6vw,1.2rem);z-index:21;
+  font-family:var(--sans);font-size:.66rem;letter-spacing:.07em;color:var(--ink-30);
+  transition:opacity .8s}
+.hint.inv{color:rgba(244,239,229,.34)}
+.progress{position:fixed;left:0;bottom:0;height:2px;background:var(--brick);width:0;z-index:25;
+  transition:width .4s ease;opacity:.55}
+
+/* ---------- pantallas angostas ---------- */
+@media screen and (max-width:960px){
+  .cols,.cols.a,.figs,.steps.s3,.steps.s4{grid-template-columns:1fr}
+  .cols > div + div{border-left:0;padding-left:0;border-top:1px solid var(--hair);padding-top:1.3rem}
+  .matrix,.matrix thead,.matrix tbody,.matrix tr,.matrix th,.matrix td{display:block;width:auto}
+  .matrix th:first-child{width:auto}
+  .matrix .rl{padding-top:1rem}
+  .band .y{font-size:1.3rem}
+  h2{max-width:none}
+}
+
+/* ---------- exportación a PDF ---------- */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  body{overflow:visible;background:#fff}
+  .counter,.nav,.hint,.progress{display:none!important}
+  #deck{position:static}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;
+    width:1280px;height:720px;page-break-after:always;break-after:page;overflow:hidden}
+  .slide,.slide.dark,.rail,.st,.legend i,.fig,.steps li,.ask-item,.ledger div,
+  .quote,.chap-num,.chap-list li,.band .sp::before,.band .sp em,.matrix th,.matrix td{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- 01 · PORTADA -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body cover">
+        <div class="mark" data-leaf="light" style="--lf:52px"></div>
+        <div class="kicker">Conjunto Residencial Loma del Bosque P.H.</div>
+        <h1>Informe de gestión</h1>
+        <div class="sub">Agosto de 2026</div>
+        <div class="meta">
+          <span>Consejo de Administración · 24 de agosto de 2026</span>
+          <span>Nora Luz Restrepo Restrepo · Administradora</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · RESUMEN -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>Resumen del mes</span><span>Agosto de 2026</span></header>
+      <div class="body">
+        <div class="kicker">Once compromisos del Consejo</div>
+        <h2 class="wide">Cuatro cumplidos, cinco en curso y dos que esperan al Consejo</h2>
+        <div class="figs g3big">
+          <div class="fig"><div class="v">4</div><div class="k">cumplidos dentro del mes</div></div>
+          <div class="fig"><div class="v">5</div><div class="k">en curso, a la espera de entidades o proveedores</div></div>
+          <div class="fig hi"><div class="v">2</div><div class="k">requieren decisión del Consejo</div></div>
+        </div>
+        <div class="hr"></div>
+        <p>La gestión se concentró en cumplir los compromisos definidos por el Consejo y, en paralelo, en sostener el mantenimiento, la seguridad, la comunicación con los copropietarios y los trámites ante entidades externas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · TABLA DE COMPROMISOS -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>Resumen del mes</span><span>Compromiso frente a resultado</span></header>
+      <div class="body">
+        <h2 class="topic" style="max-width:none">Estado de los once compromisos</h2>
+        <table class="tbl">
+          <thead><tr><th>Compromiso</th><th>Gestión realizada</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr><td>Fumigación general</td><td>Negociación y coordinación con la empresa contratada.</td><td class="t-ok">Cumplido · 20 y 21 de agosto</td></tr>
+            <tr><td>Lavado de accesos</td><td>Coordinación, supervisión y apoyo directo en terreno.</td><td class="t-ok">Cumplido · 5 días</td></tr>
+            <tr><td>Contabilidad</td><td>Revisión con la contadora y validaciones realizadas.</td><td class="t-ok">Cumplido</td></tr>
+            <tr class="grp"><td>Casa 146</td><td>Reunión del 3 de agosto y seguimiento al proceso de cartera.</td><td class="t-ok">Gestionado · pago el 31 de agosto</td></tr>
+            <tr><td>Expediente ambiental</td><td>Solicitud ante las entidades y posterior PQRS.</td><td class="t-wait">En trámite</td></tr>
+            <tr><td>Alumbrado</td><td>Gestión ante EPM y luego ante el Municipio de Envigado.</td><td class="t-wait">En trámite · sigue Enviaseo</td></tr>
+            <tr><td>Cerca eléctrica · JJ Mallas</td><td>Solicitud de visita técnica y diagnóstico del sistema.</td><td class="t-wait">En seguimiento</td></tr>
+            <tr><td>Casa 150</td><td>Seguimiento ante la empresa de vigilancia.</td><td class="t-wait">Pendiente de informe</td></tr>
+            <tr class="grp"><td>Guadañadoras</td><td>Entrega de un equipo para evaluación técnica.</td><td class="t-wait">Pendiente de resultado</td></tr>
+            <tr><td>Seguro 2026&ndash;2027</td><td>Investigación de mercado, negociación y 10 cotizaciones.</td><td class="t-ask">Decisión del Consejo</td></tr>
+            <tr><td>Proyecto de fachadas</td><td>Revisión de antecedentes desde 2019 hasta la asamblea de 2026.</td><td class="t-ask">Definición del Consejo</td></tr>
+          </tbody>
+        </table>
+        <div class="legend">
+          <span><i class="ok"></i>Cumplido</span>
+          <span><i class="wait"></i>En curso · depende de un tercero</span>
+          <span><i class="ask"></i>Requiere decisión del Consejo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · PORTADILLA I -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body chap-body">
+        <div class="chap-num">I</div>
+        <div class="kicker">Capítulo primero</div>
+        <h2>Lo que requiere decisión del Consejo</h2>
+        <ul class="chap-list">
+          <li><span>01</span>Renovación del seguro de zonas comunes 2026&ndash;2027</li>
+          <li><span>02</span>Alcance del proyecto de fachadas</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · SEGURO -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>I · Decisión del Consejo</span><span class="st ask">Requiere decisión</span></header>
+      <div class="body">
+        <div class="kicker">Seguro de zonas comunes 2026&ndash;2027</div>
+        <h2 class="wide">Diez alternativas analizadas; la elección final corresponde al Consejo</h2>
+        <div class="hr"></div>
+        <div class="cols a">
+          <div>
+            <p>El análisis no se limitó al valor de la prima: se compararon <strong>coberturas, exclusiones, condiciones de aseguramiento</strong> y la protección efectiva de los bienes comunes.</p>
+            <p>Se atendieron las observaciones de la señora María Emilse, propietaria de la casa 174, y se amplió la búsqueda con una nueva cotización de <strong>Dosel Asesores de Seguros</strong>, sumada al análisis que ya se adelantaba con <strong>Seguros Villegas</strong>.</p>
+          </div>
+          <div>
+            <h3>Queda por definir</h3>
+            <ul class="list">
+              <li>La <strong>alternativa definitiva</strong> entre las diez presentadas.</li>
+              <li>El <strong>valor asegurado de $6.689 millones</strong>.</li>
+              <li>El tratamiento de <strong>techos y fachadas</strong> dentro del alcance de la póliza.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · FACHADAS -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>I · Decisión del Consejo</span><span class="st ask">Requiere definición</span></header>
+      <div class="body">
+        <div class="kicker">Proyecto de fachadas</div>
+        <h2 class="wide">Las actas revisadas no registran una decisión sobre el cambio de color</h2>
+        <div class="band">
+          <span class="y">2019</span>
+          <span class="sp"><em>Sin decisión concreta registrada en las actas revisadas</em></span>
+          <span class="y">2026</span>
+        </div>
+        <div class="cols" style="margin-top:1.3rem">
+          <div>
+            <p>El compromiso era buscar en las actas de aproximadamente 2021 la decisión relacionada con el cambio de color y, a partir de ella, preparar un informe jurídico, de antecedentes y de financiación.</p>
+          </div>
+          <div>
+            <p>Antes de volver a estructurar el proyecto se requiere que el Consejo <strong>defina el alcance</strong> que se pretende desarrollar y <strong>cuáles antecedentes deben tomarse como base</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · PORTADILLA II -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body chap-body">
+        <div class="chap-num">II</div>
+        <div class="kicker">Capítulo segundo</div>
+        <h2>Compromisos cumplidos</h2>
+        <ul class="chap-list">
+          <li><span>03</span>Fumigación y control de plagas</li>
+          <li><span>04</span>Lavado de andenes y accesos</li>
+          <li><span>05</span>Contabilidad y cartera de la casa 146</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · FUMIGACIÓN -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>II · Compromisos cumplidos</span><span class="st ok">Cumplido</span></header>
+      <div class="body">
+        <div class="kicker">Fumigación y control de plagas</div>
+        <h2 class="wide">Se contrató $129.000 por debajo del presupuesto aprobado</h2>
+        <div class="cols a" style="margin-top:1.3rem">
+          <div>
+            <div class="ledger" style="margin-top:0">
+              <div><span class="k">Presupuesto aprobado</span><span class="v">$2.424.000</span></div>
+              <div><span class="k">Valor negociado</span><span class="v">$2.295.000</span></div>
+              <div><span class="k">Menor valor obtenido</span><span class="v">$129.000</span></div>
+            </div>
+          </div>
+          <div>
+            <p>La jornada se realizó los días <strong>20 y 21 de agosto de 2026</strong>.</p>
+            <p>Esta semana continúa la programación de la <strong>desratización de las zonas comunes</strong>, como complemento del programa de control de plagas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · LAVADO -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>II · Compromisos cumplidos</span><span class="st ok">Cumplido</span></header>
+      <div class="body">
+        <div class="kicker">Lavado de andenes y accesos</div>
+        <h2 class="wide">Cinco días de trabajo coordinados y supervisados por la Administración</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div>
+            <ul class="list" style="margin-top:0">
+              <li>Cerca de <strong>cinco días de trabajo directo</strong>, entre coordinación, seguimiento y supervisión.</li>
+              <li><strong>Dos jornadas de apoyo de la empresa de vigilancia</strong>, que reforzó el equipo disponible.</li>
+            </ul>
+          </div>
+          <div>
+            <p>El compromiso incluía la autorización para el uso de agua y energía, la coordinación con la empresa de aseo y la supervisión de la actividad.</p>
+            <p class="note" style="margin-top:1rem">Actividad ejecutada y supervisada directamente por la Administración.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · CONTABILIDAD Y CASA 146 -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>II · Compromisos cumplidos</span><span class="st ok">Cumplido</span></header>
+      <div class="body">
+        <div class="kicker">Contabilidad y cartera</div>
+        <h2 class="wide">Los estados financieros quedaron revisados y la casa 146 se comprometió a pagar el 31 de agosto</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div>
+            <h3>Revisión contable</h3>
+            <p>Adelantada en coordinación con la contadora <strong>María Isabel Álvarez</strong>.</p>
+            <ul class="list">
+              <li>Validación de rubros de los estados financieros recibidos.</li>
+              <li>Confirmación de eventuales cuentas por pagar.</li>
+              <li>Seguimiento al proceso de cartera de la casa 146.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Casa 146</h3>
+            <p>Se realizó una <strong>reunión el 3 de agosto a las 8:00 a. m.</strong>, en la que se manifestó el compromiso de pago para el <strong>31 de agosto de 2026</strong>.</p>
+            <p class="note" style="margin-top:1rem">Próximo paso: verificar el cumplimiento al cierre del mes y continuar el seguimiento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · PORTADILLA III -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body chap-body">
+        <div class="chap-num">III</div>
+        <div class="kicker">Capítulo tercero</div>
+        <h2>Gestiones en curso ante terceros</h2>
+        <ul class="chap-list">
+          <li><span>06</span>Expediente ambiental de ocupación de cauce</li>
+          <li><span>07</span>Iluminación de la transversal intermedia</li>
+          <li><span>08</span>Cerca eléctrica, casa 150 y guadañadoras</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 · AMBIENTAL -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>III · En curso ante terceros</span><span class="st wait">En trámite</span></header>
+      <div class="body">
+        <div class="kicker">Expediente de ocupación de cauce</div>
+        <h2 class="wide">Ante el silencio de las entidades, la solicitud se escaló a PQRS</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div>
+            <p>Se pidió al <strong>Área Metropolitana</strong> y a la <strong>Oficina Ambiental del Municipio de Envigado</strong> copia completa del expediente del proceso de ocupación del cauce de la quebrada aledaña al conjunto.</p>
+          </div>
+          <div>
+            <p>Se recibió información parcial y se continúa a la espera de las copias de las <strong>visitas técnicas</strong> realizadas por la entidad al conjunto.</p>
+          </div>
+        </div>
+        <ol class="steps s4">
+          <li><span class="n">Paso 1</span><span class="t">Organizar el expediente</span><span class="d">Una vez recibida la documentación completa.</span></li>
+          <li><span class="n">Paso 2</span><span class="t">Revisar antecedentes</span><span class="d">Contrastar con el histórico del proceso.</span></li>
+          <li><span class="n">Paso 3</span><span class="t">Remitir al abogado</span><span class="d">Para el análisis técnico y jurídico.</span></li>
+          <li><span class="n">Paso 4</span><span class="t">Presentar al Consejo</span><span class="d">Conclusiones y recomendaciones.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 · ALUMBRADO -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>III · En curso ante terceros</span><span class="st wait">En trámite</span></header>
+      <div class="body">
+        <div class="kicker">Iluminación de la transversal intermedia</div>
+        <h2 class="wide">Tres entidades después, la solicitud llega esta semana a Enviaseo</h2>
+        <div class="hr"></div>
+        <p>La Administración identificó la necesidad de mejorar la iluminación del sector y ha escalado la solicitud hasta dar con la entidad competente.</p>
+        <ol class="steps s3">
+          <li><span class="n">Primero</span><span class="t">EPM · Alumbrado Público</span><span class="d">Respondió que el trámite corresponde al Municipio de Envigado.</span></li>
+          <li><span class="n">Después</span><span class="t">Municipio de Envigado</span><span class="d">Informó que la solicitud debe gestionarse ante Enviaseo.</span></li>
+          <li><span class="n">Esta semana</span><span class="t">Enviaseo</span><span class="d">Se radica la solicitud correspondiente.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 · TRES ASUNTOS A LA ESPERA -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>III · En curso ante terceros</span><span class="st wait">Respuesta pendiente</span></header>
+      <div class="body">
+        <div class="kicker">Seguridad, convivencia y equipos</div>
+        <h2 class="wide">Tres asuntos gestionados que hoy dependen de un tercero</h2>
+        <table class="matrix">
+          <thead>
+            <tr><th></th><th>Cerca eléctrica<br>JJ Mallas</th><th>Casa 150</th><th>Guadañadoras<br>Highline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rl">Qué se hizo</td>
+              <td>Se solicitó la visita técnica para diagnosticar la cerca y validar los sensores perimetrales.</td>
+              <td>Seguimiento ante la empresa de vigilancia, que hizo un cambio preventivo de personal.</td>
+              <td>Se envió una de las dos guadañadoras a evaluación técnica.</td>
+            </tr>
+            <tr>
+              <td class="rl">Qué se espera</td>
+              <td>El diagnóstico: está en análisis por qué la cerca se dispara con facilidad.</td>
+              <td>El informe definitivo de la empresa, que adelanta su propio análisis.</td>
+              <td>El diagnóstico y el costo de reparación del equipo enviado.</td>
+            </tr>
+            <tr>
+              <td class="rl">Paso siguiente</td>
+              <td>Definir la intervención necesaria a partir del diagnóstico.</td>
+              <td>Presentar al Consejo las conclusiones del informe.</td>
+              <td>Comparar costo y beneficio, y recomendar reparar o dar de baja.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 · PRESENCIA Y COMUNICACIÓN -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>Gestión propia de la Administración</span><span>Agosto de 2026</span></header>
+      <div class="body">
+        <div class="kicker">Presencia y comunicación</div>
+        <h2 class="wide">Dos visitas al conjunto cada semana y una circular semanal a la comunidad</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div>
+            <h3>Visitas y supervisión</h3>
+            <p>Presencia permanente con <strong>mínimo dos visitas semanales</strong>, en media jornada y, cuando la operación lo exigió, jornadas completas. En paralelo, <strong>supervisión semanal del servicio de aseo</strong> y del estado general del conjunto.</p>
+          </div>
+          <div>
+            <h3>Circulares a los copropietarios</h3>
+            <p>Divulgación <strong>semanal</strong> de información de interés, orientada a promover la convivencia, el cuidado de las zonas comunes y la corresponsabilidad.</p>
+          </div>
+        </div>
+        <div class="quote" style="margin-top:1.5rem">El objetivo no ha sido solamente informar, sino construir una comunicación más preventiva y más cercana.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 · CIFRAS -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>Agosto en cifras</span><span>Agosto de 2026</span></header>
+      <div class="body">
+        <h2 class="topic" style="max-width:none">El mes, resumido en seis números</h2>
+        <div class="figs">
+          <div class="fig"><div class="v">11</div><div class="k">compromisos del Consejo con seguimiento</div></div>
+          <div class="fig"><div class="v">10</div><div class="k">cotizaciones de seguro analizadas y comparadas</div></div>
+          <div class="fig hi"><div class="v">$129.000</div><div class="k">de menor valor logrado en la fumigación</div></div>
+          <div class="fig"><div class="v">5</div><div class="k">días de trabajo en el lavado de andenes y accesos</div></div>
+          <div class="fig"><div class="v">2</div><div class="k">visitas presenciales cada semana, como mínimo</div></div>
+          <div class="fig"><div class="v">4</div><div class="k">frentes ante entidades externas: seguro, ambiental, alumbrado y seguridad</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 · BALANCE Y CIERRE -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body">
+        <div class="kicker">Balance del mes</div>
+        <h2 class="wide">Cada compromiso con seguimiento, cada proceso documentado</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div style="border:0">
+            <p>La Administración mantuvo una gestión activa y presencial: se avanzó en mantenimiento y conservación, se fortaleció la comunicación con los copropietarios, se analizó a fondo la renovación de la póliza y se adelantaron gestiones ambientales y de alumbrado ante entidades externas.</p>
+            <p>Los temas abiertos cuentan con seguimiento; en los que dependen de terceros ya se adelantaron las actuaciones necesarias para continuar el trámite.</p>
+          </div>
+          <div>
+            <div class="quote">Pasar de una administración reactiva a una gestión preventiva, cercana y con seguimiento permanente.</div>
+            <div class="sig">
+              <div class="ln"></div>
+              <div class="nm">Nora Luz Restrepo Restrepo</div>
+              <div class="rl">Administradora &middot; Loma del Bosque P.H.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- cromo -->
+<div class="hint" id="hint">&larr; &rarr; para navegar &middot; F pantalla completa</div>
+<div class="counter" id="counter">01 / 17</div>
+<div class="nav" id="nav">
+  <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<div class="progress" id="progress"></div>
+
+<script>
+// marca de hoja, tomada del relieve de la portería del conjunto
+function leafSVG(color){
+  return '<svg width="var(--lf)" height="var(--lf)" viewBox="0 0 40 40" fill="none">'
+    + '<path d="M32 8C18 9 9 18 9 30c0 .8.06 1.5.16 2.2C21 32 31 23 32 8Z" fill="none" stroke="'
+    + color + '" stroke-width="1.6" stroke-linejoin="round"/>'
+    + '<path d="M9.2 32.2C15 26 24 17 31.8 8.4" stroke="' + color + '" stroke-width="1.6" stroke-linecap="round"/>'
+    + '</svg>';
+}
+document.querySelectorAll('[data-leaf]').forEach(function(el){
+  el.innerHTML = leafSVG(el.dataset.leaf === 'light' ? '#CE7B58' : '#A6482E');
+});
+
+var slides = [].slice.call(document.querySelectorAll('.slide'));
+var total = slides.length;
+var i = 0;
+var counter = document.getElementById('counter');
+var nav = document.getElementById('nav');
+var hint = document.getElementById('hint');
+var progress = document.getElementById('progress');
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+function show(n){
+  i = Math.max(0, Math.min(total - 1, n));
+  slides.forEach(function(s,k){ s.classList.toggle('active', k === i); });
+  try{ if(history.replaceState) history.replaceState(null,'','#'+(i+1)); }catch(e){}
+  var dark = slides[i].dataset.mode === 'dark';
+  nav.classList.toggle('inv', dark);
+  counter.classList.toggle('inv', dark);
+  hint.classList.toggle('inv', dark);
+  counter.textContent = pad2(i+1) + ' / ' + pad2(total);
+  progress.style.width = (i / (total - 1) * 100) + '%';
+}
+function next(){ show(i + 1); }
+function prev(){ show(i - 1); }
+
+window.addEventListener('keydown', function(e){
+  var k = e.key;
+  if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){ e.preventDefault(); next(); }
+  else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){ e.preventDefault(); prev(); }
+  else if(k==='Home'){ show(0); }
+  else if(k==='End'){ show(total - 1); }
+  else if(k==='f'||k==='F'){
+    if(document.fullscreenElement){ if(document.exitFullscreen) document.exitFullscreen(); }
+    else { var el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el); }
+  }
+});
+
+document.getElementById('next').addEventListener('click', function(e){ e.stopPropagation(); next(); });
+document.getElementById('prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+
+// clic o toque en cualquier parte avanza; el 22% izquierdo retrocede
+document.getElementById('deck').addEventListener('click', function(e){
+  if(e.clientX < window.innerWidth * 0.22) prev(); else next();
+});
+
+setTimeout(function(){ hint.style.opacity = '0'; }, 6000);
+try{ window.focus(); }catch(e){}
+
+var startAt = parseInt((location.hash || '').replace('#',''), 10);
+show(isNaN(startAt) ? 0 : startAt - 1);
+</script>
+</body>
+</html>
