@@ -2,6 +2,8 @@
 
 ## Archivos
 
+- **`proyecto-pintura.html`** → **Proyecto de pintura de fachadas**, para la Asamblea Extraordinaria
+  del 22 de septiembre de 2026 (8 diapositivas: portada + los 7 puntos del documento).
 - **`consejo-24-agosto.html`** → **Informe de gestión de agosto de 2026**, para el Consejo
   de Administración del 24 de agosto (17 diapositivas). Es la presentación más reciente.
 - **`consejo-28-julio.html`** → presentación para el **Consejo de Administración del 28 de julio de 2026**

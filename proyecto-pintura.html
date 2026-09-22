@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loma del Bosque — Proyecto de pintura</title>
+<style>
+:root{
+  --paper:#FAF8F3;
+  --paper-2:#F1ECE2;
+  --dark:#1A1714;
+  --dark-2:#242019;
+  --cream:#F4EFE5;
+  --ink:#1D1A16;
+  --ink-70:#4B443B;
+  --ink-50:#756D62;
+  --ink-30:rgba(29,26,22,.32);
+  --hair:rgba(29,26,22,.14);
+  --hair-2:rgba(29,26,22,.07);
+  --brick:#A6482E;
+  --brick-lt:#CE7B58;
+  --ok:#2E6B48;
+  --wait:#8A6512;
+  --ask:#A6482E;
+  --serif:'Iowan Old Style','Palatino Linotype',Palatino,'Book Antiqua',Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:#0f0d0b;font-family:var(--serif);color:var(--ink);
+  overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+
+/* ---------- hoja ---------- */
+#deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;display:flex;
+  opacity:0;visibility:hidden;transition:opacity .45s ease;background:var(--paper);
+}
+.slide.active{opacity:1;visibility:visible;z-index:2}
+.slide.dark{background:var(--dark);color:var(--cream)}
+.sheet{
+  width:100%;display:flex;flex-direction:column;
+  padding:clamp(1.5rem,3vw,2.6rem) clamp(2rem,5vw,5.2rem) clamp(2.6rem,4.4vw,4rem);
+}
+.body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+
+/* ---------- guía superior: capítulo y estado ---------- */
+.rail{
+  flex:0 0 auto;display:flex;align-items:baseline;justify-content:space-between;gap:2rem;
+  padding-bottom:.62rem;border-bottom:1px solid var(--hair);
+  font-family:var(--sans);font-size:clamp(.6rem,.78vw,.7rem);
+  letter-spacing:.17em;text-transform:uppercase;font-weight:600;color:var(--ink-50);
+}
+.rail .st{display:flex;align-items:center;gap:.5rem;white-space:nowrap}
+.rail .st::before{content:"";width:7px;height:7px;background:currentColor;flex:0 0 auto}
+.st.ok{color:var(--ok)}
+.st.wait{color:var(--wait)}
+.st.ask{color:var(--ask)}
+
+/* ---------- jerarquía ---------- */
+.kicker{
+  font-family:var(--sans);font-size:clamp(.62rem,.8vw,.72rem);font-weight:600;
+  letter-spacing:.19em;text-transform:uppercase;color:var(--ink-50);margin-bottom:.85rem;
+}
+.dark .kicker{color:rgba(244,239,229,.55)}
+h1{font-family:var(--serif);font-weight:400;line-height:1.0;
+   font-size:clamp(2.6rem,7vw,5.8rem);letter-spacing:-.016em}
+h2{font-family:var(--serif);font-weight:400;line-height:1.13;letter-spacing:-.01em;
+   font-size:clamp(1.55rem,3.1vw,2.5rem);max-width:24ch}
+h2.wide{max-width:34ch}
+h2.topic{font-size:clamp(1.5rem,2.9vw,2.3rem)}
+.dark h2{color:var(--cream)}
+h3{font-family:var(--serif);font-weight:400;font-size:clamp(1rem,1.5vw,1.24rem);line-height:1.24}
+p{font-family:var(--serif);line-height:1.6;color:var(--ink-70);
+  font-size:clamp(.88rem,1.14vw,1.02rem);max-width:60ch}
+p + p{margin-top:.7em}
+p.lead{font-size:clamp(.98rem,1.42vw,1.2rem);line-height:1.48;color:var(--ink)}
+.dark p{color:rgba(244,239,229,.78)}
+p.note{font-size:clamp(.75rem,.94vw,.86rem);color:var(--ink-50);line-height:1.5}
+strong{font-weight:600;color:var(--ink)}
+.dark strong{color:var(--cream)}
+.hr{height:1px;background:var(--hair);border:0;margin:1.1rem 0}
+.hr.s{width:48px;background:var(--ink-30);margin:.95rem 0}
+.dark .hr{background:rgba(244,239,229,.2)}
+
+.quote{font-family:var(--serif);font-style:italic;color:var(--ink);
+  font-size:clamp(.98rem,1.5vw,1.26rem);line-height:1.42;
+  border-left:1px solid var(--brick);padding-left:clamp(.85rem,1.4vw,1.2rem);max-width:52ch}
+.dark .quote{color:var(--cream);border-left-color:var(--brick-lt)}
+
+/* ---------- portada ---------- */
+.cover{justify-content:center;gap:0}
+.cover .mark{margin-bottom:clamp(1.4rem,3vw,2.4rem)}
+.cover h1{color:var(--cream)}
+.cover .sub{font-family:var(--serif);font-style:italic;color:rgba(244,239,229,.82);
+  font-size:clamp(1.1rem,2.2vw,1.75rem);margin-top:.5rem}
+.cover .meta{margin-top:clamp(2rem,4vw,3.2rem);padding-top:1.1rem;
+  border-top:1px solid rgba(244,239,229,.22);display:flex;flex-wrap:wrap;
+  gap:.45rem clamp(1.4rem,3.4vw,3rem);
+  font-family:var(--sans);font-size:clamp(.68rem,.88vw,.79rem);letter-spacing:.05em;
+  color:rgba(244,239,229,.66)}
+
+/* ---------- portadillas de capítulo ---------- */
+.chap-body{justify-content:center}
+.chap-num{font-family:var(--serif);font-size:clamp(2.4rem,5.4vw,4.4rem);line-height:.85;
+  color:var(--brick-lt);letter-spacing:.02em;margin-bottom:.7rem}
+.chap-list{list-style:none;margin-top:clamp(1.6rem,3vw,2.4rem);max-width:44rem;
+  border-top:1px solid rgba(244,239,229,.2)}
+.chap-list li{display:flex;gap:1.1rem;align-items:baseline;
+  padding:.6rem 0;border-bottom:1px solid rgba(244,239,229,.11);
+  font-family:var(--serif);font-size:clamp(.86rem,1.14vw,1.02rem);color:rgba(244,239,229,.8)}
+.chap-list li span{font-family:var(--sans);font-size:.68rem;letter-spacing:.12em;
+  color:rgba(244,239,229,.42);flex:0 0 1.6rem}
+
+/* ---------- dos columnas ---------- */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.6rem,3.4vw,3.2rem);width:100%;align-items:start}
+.cols.a{grid-template-columns:1.25fr .75fr}
+.cols > div + div{border-left:1px solid var(--hair);padding-left:clamp(1.6rem,3.4vw,3.2rem)}
+.dark .cols > div + div{border-left-color:transparent}
+.cols h3{margin-bottom:.6rem}
+
+/* ---------- listas ---------- */
+.list{display:flex;flex-direction:column;gap:.55rem;margin-top:.9rem;list-style:none}
+.list li{position:relative;padding-left:1rem;
+  font-family:var(--serif);font-size:clamp(.85rem,1.1vw,1rem);line-height:1.52;color:var(--ink-70)}
+.list li::before{content:"";position:absolute;left:0;top:.66em;width:5px;height:1px;background:var(--ink-30)}
+
+/* ---------- tabla de compromisos ---------- */
+.tbl{width:100%;border-collapse:collapse;margin-top:1rem}
+.tbl th{font-family:var(--sans);text-transform:uppercase;letter-spacing:.14em;
+  font-size:clamp(.54rem,.68vw,.62rem);font-weight:700;color:var(--ink-50);
+  text-align:left;padding:0 .9rem .5rem 0;border-bottom:1px solid var(--ink-30)}
+.tbl th:last-child{text-align:right;padding-right:0}
+.tbl td{padding:.5rem .9rem .5rem 0;border-bottom:1px solid var(--hair-2);
+  font-size:clamp(.73rem,.95vw,.89rem);line-height:1.4;color:var(--ink-70);vertical-align:baseline}
+.tbl td:first-child{color:var(--ink);white-space:nowrap;padding-right:1.4rem}
+.tbl td:last-child{text-align:right;padding-right:0;white-space:nowrap;
+  font-family:var(--sans);font-size:clamp(.61rem,.79vw,.71rem);letter-spacing:.04em;font-weight:600}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tr.grp td{border-bottom:1px solid var(--ink-30)}
+.t-ok{color:var(--ok)}
+.t-wait{color:var(--wait)}
+.t-ask{color:var(--ask)}
+.legend{display:flex;flex-wrap:wrap;gap:.6rem 1.5rem;margin-top:.95rem;
+  font-family:var(--sans);font-size:clamp(.65rem,.83vw,.74rem);color:var(--ink-50)}
+.legend span{display:flex;align-items:center;gap:.5rem}
+.legend i{width:7px;height:7px;flex:0 0 auto}
+.legend i.ok{background:var(--ok)}
+.legend i.wait{background:var(--wait)}
+.legend i.ask{background:var(--ask)}
+
+/* ---------- cifras clave ---------- */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(1.1rem,2.4vw,2.3rem) clamp(1.5rem,3.2vw,3.2rem);width:100%;margin-top:1.4rem}
+.fig{border-top:1px solid var(--ink-30);padding-top:.8rem}
+.fig .v{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3.3rem);line-height:1;
+  color:var(--ink);letter-spacing:-.028em;font-variant-numeric:tabular-nums}
+.fig.hi .v{color:var(--brick)}
+.fig .k{font-family:var(--serif);font-size:clamp(.78rem,.98vw,.9rem);color:var(--ink-50);
+  margin-top:.5rem;line-height:1.42;max-width:23ch}
+.figs.g3big .fig .v{font-size:clamp(2.6rem,5.6vw,4.4rem)}
+
+/* ---------- cuenta (presupuesto / negociado / ahorro) ---------- */
+.ledger{margin-top:1.1rem;max-width:29rem}
+.ledger div{display:flex;justify-content:space-between;align-items:baseline;gap:1.2rem;
+  padding:.52rem 0;border-bottom:1px solid var(--hair-2)}
+.ledger div:last-child{border-bottom:0;border-top:1px solid var(--ink-30);margin-top:.12rem}
+.ledger .k{font-family:var(--sans);font-size:clamp(.67rem,.86vw,.77rem);color:var(--ink-50)}
+.ledger .v{font-family:var(--serif);font-size:clamp(1rem,1.38vw,1.2rem);color:var(--ink);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger div:last-child .k{color:var(--brick);font-weight:600}
+.ledger div:last-child .v{color:var(--brick)}
+
+/* ---------- secuencia de pasos ---------- */
+.steps{display:grid;gap:clamp(.9rem,1.9vw,1.8rem);margin-top:1.3rem;list-style:none}
+.steps.s3{grid-template-columns:repeat(3,1fr)}
+.steps.s4{grid-template-columns:repeat(4,1fr)}
+.steps li{border-top:1px solid var(--ink-30);padding-top:.66rem}
+.steps .n{font-family:var(--sans);font-size:.64rem;font-weight:700;letter-spacing:.14em;
+  color:var(--brick);display:block;margin-bottom:.32rem;text-transform:uppercase}
+.steps .t{font-family:var(--serif);font-size:clamp(.93rem,1.22vw,1.08rem);color:var(--ink);
+  display:block;line-height:1.22}
+.steps .d{font-family:var(--serif);font-size:clamp(.75rem,.94vw,.85rem);color:var(--ink-50);
+  display:block;margin-top:.32rem;line-height:1.45}
+
+/* ---------- matriz de asuntos ---------- */
+.matrix{width:100%;border-collapse:collapse;margin-top:1.1rem}
+.matrix th{font-family:var(--serif);font-weight:400;text-align:left;vertical-align:bottom;
+  font-size:clamp(.98rem,1.35vw,1.18rem);color:var(--ink);line-height:1.2;
+  padding:0 1.4rem .6rem 0;border-bottom:1px solid var(--ink-30)}
+.matrix th:first-child{width:9.5rem}
+.matrix td{padding:.72rem 1.4rem .72rem 0;border-bottom:1px solid var(--hair-2);
+  font-family:var(--serif);font-size:clamp(.8rem,1.03vw,.94rem);line-height:1.46;color:var(--ink-70);
+  vertical-align:top}
+.matrix tr:last-child td{border-bottom:0}
+.matrix .rl{font-family:var(--sans);font-size:clamp(.6rem,.76vw,.68rem);font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--ink-50);white-space:nowrap}
+
+/* ---------- banda de años ---------- */
+.band{display:flex;align-items:center;gap:clamp(.8rem,1.8vw,1.5rem);margin:1.5rem 0 .3rem}
+.band .y{font-family:var(--serif);font-size:clamp(1.5rem,3vw,2.4rem);color:var(--ink-30);
+  line-height:1;flex:0 0 auto}
+.band .sp{flex:1;position:relative;text-align:center}
+.band .sp::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--hair)}
+.band .sp em{position:relative;background:var(--paper);padding:0 clamp(.7rem,1.5vw,1.2rem);
+  font-family:var(--serif);font-style:italic;color:var(--brick);font-size:clamp(.85rem,1.16vw,1.02rem)}
+
+/* ---------- solicitudes ---------- */
+.asks{display:flex;flex-direction:column;gap:clamp(1.1rem,2.2vw,1.9rem);margin-top:1.3rem;width:100%}
+.ask-item{display:grid;grid-template-columns:auto 1fr;gap:clamp(1rem,2.2vw,2rem);
+  align-items:start;border-top:1px solid var(--brick);padding-top:.9rem}
+.ask-item .no{font-family:var(--serif);font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:.9;
+  color:var(--brick);letter-spacing:-.02em}
+.ask-item h3{margin-bottom:.4rem}
+.ask-item p{max-width:80ch}
+
+/* ---------- firma ---------- */
+.sig{margin-top:clamp(1.4rem,2.6vw,2.2rem)}
+.sig .ln{width:140px;height:1px;background:rgba(244,239,229,.3);margin-bottom:.65rem}
+.sig .nm{font-family:var(--serif);font-style:italic;color:var(--cream);
+  font-size:clamp(1.05rem,1.65vw,1.4rem)}
+.sig .rl{font-family:var(--sans);font-size:clamp(.64rem,.82vw,.73rem);
+  color:rgba(244,239,229,.55);letter-spacing:.11em;text-transform:uppercase;margin-top:.36rem}
+
+/* ---------- marca de hoja ---------- */
+.mark svg{display:block}
+
+/* ---------- cromo ---------- */
+.counter{position:fixed;right:clamp(1.4rem,3vw,2.8rem);bottom:clamp(.9rem,2vw,1.5rem);z-index:20;
+  font-family:var(--sans);font-size:.68rem;letter-spacing:.13em;color:var(--ink-50);
+  font-variant-numeric:tabular-nums}
+.counter.inv{color:rgba(244,239,229,.6)}
+.nav{position:fixed;left:clamp(1.4rem,3vw,2.8rem);bottom:clamp(.8rem,1.9vw,1.4rem);z-index:20;display:flex;gap:.4rem}
+.nav button{width:29px;height:29px;border-radius:50%;border:1px solid var(--hair);
+  background:transparent;color:var(--ink-50);cursor:pointer;display:grid;place-items:center;transition:.18s}
+.nav button:hover{border-color:var(--ink-30);color:var(--ink)}
+.nav.inv button{border-color:rgba(244,239,229,.26);color:rgba(244,239,229,.7)}
+.nav.inv button:hover{border-color:rgba(244,239,229,.6);color:var(--cream)}
+.nav svg{width:14px;height:14px}
+.hint{position:fixed;right:clamp(1.4rem,3vw,2.8rem);top:clamp(.7rem,1.6vw,1.2rem);z-index:21;
+  font-family:var(--sans);font-size:.66rem;letter-spacing:.07em;color:var(--ink-30);
+  transition:opacity .8s}
+.hint.inv{color:rgba(244,239,229,.34)}
+.progress{position:fixed;left:0;bottom:0;height:2px;background:var(--brick);width:0;z-index:25;
+  transition:width .4s ease;opacity:.55}
+
+/* ---------- pantallas angostas ---------- */
+@media screen and (max-width:960px){
+  .cols,.cols.a,.figs,.steps.s3,.steps.s4{grid-template-columns:1fr}
+  .cols > div + div{border-left:0;padding-left:0;border-top:1px solid var(--hair);padding-top:1.3rem}
+  .matrix,.matrix thead,.matrix tbody,.matrix tr,.matrix th,.matrix td{display:block;width:auto}
+  .matrix th:first-child{width:auto}
+  .matrix .rl{padding-top:1rem}
+  .band .y{font-size:1.3rem}
+  h2{max-width:none}
+}
+
+/* ---------- exportación a PDF ---------- */
+@media print{
+  @page{size:1280px 720px;margin:0}
+  body{overflow:visible;background:#fff}
+  .counter,.nav,.hint,.progress{display:none!important}
+  #deck{position:static}
+  .slide{position:relative;opacity:1!important;visibility:visible!important;
+    width:1280px;height:720px;page-break-after:always;break-after:page;overflow:hidden}
+  .slide,.slide.dark,.rail,.st,.legend i,.fig,.steps li,.ask-item,.ledger div,
+  .quote,.chap-num,.chap-list li,.band .sp::before,.band .sp em,.matrix th,.matrix td{
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- 01 · PORTADA -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body cover">
+        <div class="mark" data-leaf="light" style="--lf:52px"></div>
+        <div class="kicker">Conjunto Residencial Loma del Bosque P.H.</div>
+        <h1>Proyecto de pintura de fachadas</h1>
+        <div class="sub">Viviendas y zonas comunes</div>
+        <div class="meta">
+          <span>Asamblea Extraordinaria de Propietarios · 22 de septiembre de 2026</span>
+          <span>Administración · Consejo de Administración</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · PRESENTACIÓN -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>1 · Presentación del proyecto</span><span>Proyecto de pintura</span></header>
+      <div class="body">
+        <div class="kicker">Presentación del proyecto</div>
+        <h2 class="wide">Mantenimiento y pintura de las fachadas de las viviendas y de las zonas comunes</h2>
+        <div class="hr"></div>
+        <div class="cols">
+          <div>
+            <p>El proyecto surge de la necesidad de un <strong>mantenimiento general de la imagen exterior</strong> del conjunto: durante un período importante no se ha efectuado un mantenimiento integral de pintura.</p>
+          </div>
+          <div>
+            <p>De aprobarse, la intervención permitirá recuperar una imagen <strong>uniforme, limpia, renovada y armónica</strong>, contribuyendo al mantenimiento de las edificaciones y a la <strong>conservación del patrimonio</strong> de todos los propietarios.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · POR QUÉ -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>2 · ¿Por qué se propone?</span><span>Proyecto de pintura</span></header>
+      <div class="body">
+        <div class="kicker">¿Por qué se propone realizar este proyecto?</div>
+        <h2 class="wide">No es solo estética: es conservación del patrimonio común y privado</h2>
+        <div class="cols">
+          <ul class="list">
+            <li><strong>Recuperar la imagen general</strong> del conjunto y renovar visualmente las fachadas.</li>
+            <li><strong>Mantener las edificaciones</strong> y atender a tiempo los deterioros visibles.</li>
+            <li><strong>Lograr una imagen unificada</strong>, sin tonalidades, materiales o acabados distintos por vivienda.</li>
+            <li><strong>Mejorar las zonas comunes</strong> incluidas en las propuestas recibidas.</li>
+          </ul>
+          <ul class="list">
+            <li><strong>Conservar el patrimonio</strong>: una copropiedad mantenida transmite cuidado y organización.</li>
+            <li><strong>Favorecer la presentación</strong> de las propiedades con fachadas uniformes y limpias.</li>
+            <li><strong>Aprovechar una intervención conjunta</strong> y evitar trabajos aislados que generen diferencias de color.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · PROPUESTAS -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>3 · Propuestas recibidas</span><span>Cuadro comparativo</span></header>
+      <div class="body">
+        <div class="kicker">Propuestas recibidas</div>
+        <h2 class="wide">Dos contratistas presentaron propuesta por el valor global del proyecto</h2>
+        <table class="tbl">
+          <thead><tr><th>Concepto</th><th>Propuesta 1</th><th>Propuesta 2</th></tr></thead>
+          <tbody>
+            <tr><td>Contratista</td><td>José Luis Velásquez</td><td>Jaime Alberto García Posada</td></tr>
+            <tr><td>Valor total proyectado</td><td><strong>$24.708.000</strong></td><td><strong>$32.100.000</strong></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:1.3rem">Se presenta el valor global para que los propietarios conozcan de manera sencilla el alcance económico general del proyecto.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · PRIMERA DECISIÓN -->
+  <section class="slide dark" data-mode="dark">
+    <div class="sheet">
+      <div class="body chap-body">
+        <div class="chap-num">1</div>
+        <div class="kicker">Primera decisión de la Asamblea</div>
+        <h2>¿Se aprueba la realización del proyecto de pintura de fachadas de viviendas y zonas comunes?</h2>
+        <div class="hr"></div>
+        <p>La Asamblea deliberará y decidirá sobre la ejecución del proyecto con base en las propuestas económicas presentadas, su necesidad de mantenimiento y las condiciones expuestas por la Administración.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · COLOR -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>5 · Segunda decisión</span><span class="st ask">Solo si se aprueba el proyecto</span></header>
+      <div class="body">
+        <div class="kicker">Segunda decisión · Definición del color</div>
+        <h2 class="wide">El color se elige después, con asesoría técnica y viendo las muestras</h2>
+        <ol class="steps s3">
+          <li><span class="n">Paso 1</span><span class="t">Asesoría especializada</span><span class="d">Una empresa de pinturas y color (por ejemplo, Pintuco) orienta sobre las tonalidades apropiadas para el conjunto.</span></li>
+          <li><span class="n">Paso 2</span><span class="t">Tres alternativas</span><span class="d">Muestras físicas, pruebas sobre una superficie del conjunto y referencias de tonalidad.</span></li>
+          <li><span class="n">Paso 3</span><span class="t">Votación</span><span class="d">La Asamblea elige por votación una de las tres tonalidades.</span></li>
+        </ol>
+        <div class="hr"></div>
+        <p>El color final será una <strong>decisión colectiva, informada y visualmente apreciable</strong>, que favorezca la uniformidad y armonía del conjunto. No hace parte de la primera votación.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · PAGO -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>6 · Alternativas de pago</span><span>Proyecto de pintura</span></header>
+      <div class="body">
+        <div class="kicker">Alternativas para el pago del proyecto</div>
+        <h2 class="wide">Tres formas de pago a consideración de la Asamblea</h2>
+        <table class="tbl">
+          <thead><tr><th>Alternativa</th><th>Propuesta 1 · $24.708.000</th><th>Propuesta 2 · $32.100.000</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Opción 1</strong> · 100% en octubre de 2026</td><td>$24.708.000</td><td>$32.100.000</td></tr>
+            <tr><td><strong>Opción 2</strong> · 50% octubre y 50% noviembre</td><td>$12.354.000 + $12.354.000</td><td>$16.050.000 + $16.050.000</td></tr>
+            <tr><td><strong>Opción 3</strong> · tres pagos mensuales</td><td>$8.236.000 mensuales</td><td>$10.700.000 mensuales</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:1.3rem">El pago en octubre permite contar con la totalidad de los recursos desde el inicio. El recaudo se distribuye entre las viviendas según el esquema que determinen la Asamblea y la Administración.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · PROPUESTA DE DECISIÓN -->
+  <section class="slide" data-mode="light">
+    <div class="sheet">
+      <header class="rail"><span>7 · Propuesta de decisión</span><span class="st ask">A consideración de la Asamblea</span></header>
+      <div class="body">
+        <div class="kicker">Propuesta de decisión para la Asamblea</div>
+        <table class="tbl">
+          <tbody>
+            <tr><td>Primero</td><td>Aprobar la realización del proyecto de mantenimiento y pintura de fachadas, viviendas y zonas comunes.</td></tr>
+            <tr><td>Segundo</td><td>Autorizar la contratación de una de las dos propuestas presentadas, según decidan los propietarios.</td></tr>
+            <tr><td>Tercero</td><td>Autorizar como presupuesto el valor de la propuesta seleccionada.</td></tr>
+            <tr><td>Cuarto</td><td>Autorizar a la Administración para formalizar la contratación, fijar el cronograma y hacer el seguimiento.</td></tr>
+            <tr><td>Quinto</td><td>Someter a votación las tres alternativas de color seleccionadas con asesoría especializada.</td></tr>
+            <tr><td>Sexto</td><td>Definir la alternativa de pago: 100% en octubre · 50% octubre y 50% noviembre · tres meses.</td></tr>
+            <tr><td>Séptimo</td><td>Toda actividad adicional fuera del alcance aprobado se presentará previamente a la Administración y, cuando corresponda, al Consejo, antes de asumir obligaciones económicas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- cromo -->
+<div class="hint" id="hint">&larr; &rarr; para navegar &middot; F pantalla completa</div>
+<div class="counter" id="counter">01 / 08</div>
+<div class="nav" id="nav">
+  <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 5l7 7-7 7"/></svg></button>
+</div>
+<div class="progress" id="progress"></div>
+
+<script>
+// marca de hoja, tomada del relieve de la portería del conjunto
+function leafSVG(color){
+  return '<svg width="var(--lf)" height="var(--lf)" viewBox="0 0 40 40" fill="none">'
+    + '<path d="M32 8C18 9 9 18 9 30c0 .8.06 1.5.16 2.2C21 32 31 23 32 8Z" fill="none" stroke="'
+    + color + '" stroke-width="1.6" stroke-linejoin="round"/>'
+    + '<path d="M9.2 32.2C15 26 24 17 31.8 8.4" stroke="' + color + '" stroke-width="1.6" stroke-linecap="round"/>'
+    + '</svg>';
+}
+document.querySelectorAll('[data-leaf]').forEach(function(el){
+  el.innerHTML = leafSVG(el.dataset.leaf === 'light' ? '#CE7B58' : '#A6482E');
+});
+
+var slides = [].slice.call(document.querySelectorAll('.slide'));
+var total = slides.length;
+var i = 0;
+var counter = document.getElementById('counter');
+var nav = document.getElementById('nav');
+var hint = document.getElementById('hint');
+var progress = document.getElementById('progress');
+function pad2(n){ return String(n).padStart(2,'0'); }
+
+function show(n){
+  i = Math.max(0, Math.min(total - 1, n));
+  slides.forEach(function(s,k){ s.classList.toggle('active', k === i); });
+  try{ if(history.replaceState) history.replaceState(null,'','#'+(i+1)); }catch(e){}
+  var dark = slides[i].dataset.mode === 'dark';
+  nav.classList.toggle('inv', dark);
+  counter.classList.toggle('inv', dark);
+  hint.classList.toggle('inv', dark);
+  counter.textContent = pad2(i+1) + ' / ' + pad2(total);
+  progress.style.width = (i / (total - 1) * 100) + '%';
+}
+function next(){ show(i + 1); }
+function prev(){ show(i - 1); }
+
+window.addEventListener('keydown', function(e){
+  var k = e.key;
+  if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){ e.preventDefault(); next(); }
+  else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){ e.preventDefault(); prev(); }
+  else if(k==='Home'){ show(0); }
+  else if(k==='End'){ show(total - 1); }
+  else if(k==='f'||k==='F'){
+    if(document.fullscreenElement){ if(document.exitFullscreen) document.exitFullscreen(); }
+    else { var el = document.documentElement; (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el); }
+  }
+});
+
+document.getElementById('next').addEventListener('click', function(e){ e.stopPropagation(); next(); });
+document.getElementById('prev').addEventListener('click', function(e){ e.stopPropagation(); prev(); });
+
+// clic o toque en cualquier parte avanza; el 22% izquierdo retrocede
+document.getElementById('deck').addEventListener('click', function(e){
+  if(e.clientX < window.innerWidth * 0.22) prev(); else next();
+});
+
+setTimeout(function(){ hint.style.opacity = '0'; }, 6000);
+try{ window.focus(); }catch(e){}
+
+var startAt = parseInt((location.hash || '').replace('#',''), 10);
+show(isNaN(startAt) ? 0 : startAt - 1);
+</script>
+</body>
+</html>
